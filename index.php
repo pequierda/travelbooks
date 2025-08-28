@@ -1,0 +1,208 @@
+<?php
+$packages = [];
+if (file_exists('packages.txt')) {
+    $content = file_get_contents('packages.txt');
+    $packageBlocks = explode("\n\n", $content);
+    
+    foreach ($packageBlocks as $block) {
+        $block = trim($block);
+        if (empty($block)) continue;
+        
+        $lines = explode("\n", $block);
+        $firstLine = trim($lines[0]);
+        $descriptionLines = array_slice($lines, 1);
+        
+        $parts = explode('|', $firstLine);
+        if (count($parts) >= 4) {
+            $packages[] = [
+                'name' => $parts[0],
+                'duration' => $parts[1],
+                'price' => $parts[2],
+                'image' => $parts[3],
+                'description' => implode("\n", $descriptionLines)
+            ];
+        }
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travelbooks - Exclusive Travel Packages</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#052858',
+                        'accent': '#ffa200',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-inter bg-gray-50">
+    <!-- Simple Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-4">
+            <h1 class="text-2xl font-bold text-primary text-center">Travelbooks</h1>
+        </div>
+    </header>
+
+    <!-- Hero Section - Mobile Optimized -->
+    <section class="bg-gradient-to-br from-primary to-primary/90 text-white py-12 px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-3xl font-bold mb-4 sm:text-4xl">Exclusive Travel Packages</h2>
+            <p class="text-lg opacity-90 mb-6">Discover amazing destinations at unbeatable prices</p>
+        </div>
+    </section>
+
+    <!-- Packages Section - Mobile First -->
+    <section class="py-8 px-4">
+        <div class="max-w-6xl mx-auto">
+            <?php if (!empty($packages)): ?>
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    <?php foreach ($packages as $index => $pkg): ?>
+                        <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            <!-- Package Image -->
+                            <div class="relative h-48 sm:h-56">
+                                <?php if (file_exists('images/' . $pkg['image'])): ?>
+                                    <img src="images/<?php echo htmlspecialchars($pkg['image']); ?>" 
+                                         alt="<?php echo htmlspecialchars($pkg['name']); ?>" 
+                                         class="w-full h-full object-cover">
+                                <?php else: ?>
+                                    <div class="w-full h-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
+                                        <svg class="w-16 h-16 text-white opacity-50" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                <?php endif; ?>
+                                <!-- Duration Badge -->
+                                <div class="absolute top-3 right-3">
+                                    <span class="bg-accent text-white px-3 py-1 rounded-full text-sm font-medium shadow-md">
+                                        <?php echo htmlspecialchars($pkg['duration']); ?>
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <!-- Package Details -->
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-3">
+                                    <?php echo htmlspecialchars($pkg['name']); ?>
+                                </h3>
+                                
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="text-3xl font-bold text-primary">
+                                        <?php echo htmlspecialchars($pkg['price']); ?>
+                                    </span>
+                                </div>
+                                
+                                <!-- CTA Button -->
+                                <button class="w-full bg-accent hover:bg-accent/90 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 transform hover:scale-105 mb-4">
+                                    Book This Package
+                                </button>
+
+                                <!-- Package Description Toggle -->
+                                <div class="border-t border-gray-200 pt-4">
+                                    <button onclick="toggleDescription(<?php echo $index; ?>)" 
+                                            class="w-full text-left text-primary hover:text-accent font-medium flex items-center justify-between">
+                                        <span>View Package Details</span>
+                                        <svg id="icon-<?php echo $index; ?>" class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </button>
+                                    
+                                    <!-- Package Description Content -->
+                                    <div id="description-<?php echo $index; ?>" class="hidden mt-4 text-sm text-gray-600 space-y-3">
+                                        <?php 
+                                        $description = $pkg['description'];
+                                        // Split the description into sections
+                                        $sections = explode("\n\n", $description);
+                                        
+                                        foreach ($sections as $section) {
+                                            if (trim($section) !== '') {
+                                                $lines = explode("\n", trim($section));
+                                                $sectionTitle = trim($lines[0]);
+                                                $sectionContent = array_slice($lines, 1);
+                                                
+                                                echo '<div class="mb-4">';
+                                                echo '<h4 class="font-semibold text-primary mb-2">' . htmlspecialchars($sectionTitle) . '</h4>';
+                                                echo '<ul class="list-disc list-inside space-y-1 text-gray-700">';
+                                                
+                                                foreach ($sectionContent as $line) {
+                                                    $line = trim($line);
+                                                    if ($line !== '' && strpos($line, '*') === 0) {
+                                                        $content = substr($line, 1); // Remove the asterisk
+                                                        echo '<li>' . htmlspecialchars($content) . '</li>';
+                                                    } elseif ($line !== '' && strpos($line, '🕖') === 0) {
+                                                        echo '<li class="text-sm text-gray-600">' . htmlspecialchars($line) . '</li>';
+                                                    } elseif ($line !== '' && strpos($line, '🪪') === 0) {
+                                                        echo '<li class="text-sm text-gray-600">' . htmlspecialchars($line) . '</li>';
+                                                    } elseif ($line !== '' && strpos($line, '🍽') === 0) {
+                                                        echo '<li class="text-sm text-gray-600">' . htmlspecialchars($line) . '</li>';
+                                                    } elseif ($line !== '' && strpos($line, '🌿') === 0) {
+                                                        echo '<li class="text-sm text-gray-600">' . htmlspecialchars($line) . '</li>';
+                                                    }
+                                                }
+                                                
+                                                echo '</ul>';
+                                                echo '</div>';
+                                            }
+                                        }
+                                        ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <div class="text-center py-12">
+                    <div class="bg-white rounded-lg p-8 shadow-lg">
+                        <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.47-.881-6.08-2.33"></path>
+                        </svg>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">No packages available</h3>
+                        <p class="text-gray-500">Check back soon for new travel packages.</p>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+    </section>
+
+    <!-- Simple Footer -->
+    <footer class="bg-primary text-white py-8 px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <p class="text-gray-300 mb-4">&copy; 2024 Travelbooks. All rights reserved.</p>
+            <div class="flex justify-center space-x-6 text-sm">
+                <a href="#" class="text-gray-300 hover:text-accent transition-colors">Contact</a>
+                <a href="#" class="text-gray-300 hover:text-accent transition-colors">Terms</a>
+                <a href="#" class="text-gray-300 hover:text-accent transition-colors">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleDescription(index) {
+            const description = document.getElementById(`description-${index}`);
+            const icon = document.getElementById(`icon-${index}`);
+            
+            if (description.classList.contains('hidden')) {
+                description.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+            } else {
+                description.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            }
+        }
+    </script>
+</body>
+</html>
