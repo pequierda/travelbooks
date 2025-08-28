@@ -1,4 +1,4 @@
-El nido|5 days|₱800|paris.jpg|Destinations:
+El nido|5 days|₱800|package_1754988962_689b01a2c4be8.png|Destinations:
 *Eiffel Tower 🗼
 *Louvre Museum 🏛
 *Notre-Dame Cathedral ⛪
@@ -44,6 +44,7 @@ Reminders:
 🪪 Bring: Valid ID, camera, water, comfortable shoes, small cash
 🍽 Tip: Have breakfast before the tour
 🌿 Please help keep the city clean
+
 
 
 
