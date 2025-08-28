@@ -67,27 +67,43 @@
         // Function to parse package data from text
         function parsePackages(text) {
             const packages = [];
-            const packageBlocks = text.split('\n\n');
+            const lines = text.split('\n');
+            let currentPackage = null;
+            let currentDescription = [];
             
-            packageBlocks.forEach((block, index) => {
-                const lines = block.trim().split('\n');
-                if (lines.length < 2) return;
+            lines.forEach((line, index) => {
+                const trimmedLine = line.trim();
                 
-                const firstLine = lines[0];
-                const descriptionLines = lines.slice(1);
-                
-                const parts = firstLine.split('|');
-                if (parts.length >= 4) {
-                    packages.push({
+                // Check if this line is a package header (contains |)
+                if (trimmedLine.includes('|') && trimmedLine.split('|').length >= 4) {
+                    // Save previous package if exists
+                    if (currentPackage) {
+                        currentPackage.description = currentDescription.join('\n');
+                        packages.push(currentPackage);
+                    }
+                    
+                    // Start new package
+                    const parts = trimmedLine.split('|');
+                    currentPackage = {
                         name: parts[0].trim(),
                         duration: parts[1].trim(),
                         price: parts[2].trim(),
                         image: parts[3].trim(),
-                        description: descriptionLines.join('\n'),
-                        index: index
-                    });
+                        description: '',
+                        index: packages.length
+                    };
+                    currentDescription = [];
+                } else if (currentPackage && trimmedLine !== '') {
+                    // Add line to current package description
+                    currentDescription.push(line);
                 }
             });
+            
+            // Don't forget the last package
+            if (currentPackage) {
+                currentPackage.description = currentDescription.join('\n');
+                packages.push(currentPackage);
+            }
             
             return packages;
         }
@@ -104,6 +120,9 @@
                 const sectionTitle = lines[0];
                 const sectionContent = lines.slice(1);
                 
+                // Skip if no content
+                if (sectionContent.length === 0) return;
+                
                 html += '<div class="mb-4">';
                 html += `<h4 class="font-semibold text-primary mb-2">${sectionTitle}</h4>`;
                 html += '<ul class="list-disc list-inside space-y-1 text-gray-700">';
@@ -117,6 +136,9 @@
                         html += `<li>${content}</li>`;
                     } else if (line.startsWith('🕖') || line.startsWith('🪪') || line.startsWith('🍽') || line.startsWith('🌿')) {
                         html += `<li class="text-sm text-gray-600">${line}</li>`;
+                    } else if (line.includes(':')) {
+                        // Handle lines that might be section headers but don't start with *
+                        html += `<li>${line}</li>`;
                     }
                 });
                 
