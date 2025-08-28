@@ -25,7 +25,7 @@ Reminders:
 🍽 Tip: Have breakfast before the tour
 🌿 Please help keep the city clean
 
-El nido|5 days|₱800|paris.jpg|Destinations:
+japan|5 days|₱800|japan.jpg|Destinations:
 *Eiffel Tower 🗼
 *Louvre Museum 🏛
 *Notre-Dame Cathedral ⛪
@@ -51,6 +51,7 @@ Reminders:
 🪪 Bring: Valid ID, camera, water, comfortable shoes, small cash
 🍽 Tip: Have breakfast before the tour
 🌿 Please help keep the city clean
+
 
 
 
